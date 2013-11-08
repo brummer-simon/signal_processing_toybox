@@ -7,6 +7,7 @@
 import scipy as sp
 import pylab as pl
 import numpy as np
+import math  as ma
 
 def readDatafile( path, seperator='\t' ):
     """ 
@@ -44,8 +45,6 @@ def cutOutSamples( dataSet, fromValue, toValue, normalize=False ):
        This function assumes that the first dimension of the dataset is orderd ascending and 
        reflects the x-Axis values.
     """
-
-
     return None;
     
 
@@ -70,6 +69,16 @@ def freqDomainOf(signal, sampleFreq, singleSided=True):
     return freq , abs(y)                    # Return freq, abs(y) plotready !
 
 
+def absoluteValuesOf( values ):
+    """
+    Calculates Absolute Values of a given List
+    """
+    absVal = []
+    for val in values:
+        absVal.append( abs(val))
+
+    return absVal
+
 
 def meanValueOf( values ):
     """
@@ -87,6 +96,14 @@ def meanSquareValueOf( values ):
 
 
 
+def rootMeanSquareValueOf( values ):
+    """
+    Calculation of Root Mean Square Value of a list of values
+    """
+    return ma.sqrt(meanSquareValueOf( values ))
+
+
+
 def varianceOf( values, sample=False ):
     """
     Calculation of the variance of a list of values
@@ -94,7 +111,6 @@ def varianceOf( values, sample=False ):
     mean_val = meanValueOf( values )
     n_val = len( values ) -1 if sample else len( values )
     return sum( [ j**2 for j in [ i - mean_val for i in values ] ] ) / n_val
-
 
 
 def standardDeviationOf( values, sample=False ):
@@ -118,13 +134,13 @@ def psdFunction():
     """
     return None
 
+
 def autoCorrelationOf(values, lags=100):
     """
     Calculate auto correlation a given List of values
     """
     lags, corr, line, x = pl.acorr( values, maxlags=lags, usevlines=False, marker=None)
     return lags, corr
-
 
 
 def crossCorrelationOf(values1, values2, lags=100):
@@ -135,13 +151,27 @@ def crossCorrelationOf(values1, values2, lags=100):
     return lags, corr
 
 
+def rmsSmoothingOf( values, samples=100 ):
+    """
+    Simple Root Mean Square Smoothing. Returns smoothed curve as a list.
+    """
+    rms = []
+    rng = int(samples/2)  # Sample used for Smoothing
+    
+    for i,x in enumerate( values ):
+        
+        lo = i-rng if i-rng > 0 else 0
+        hi = i+rng
+        rms.append( rootMeanSquareValueOf( values[ lo : hi] ))
+    
+    return rms
 
-def addSubplot(plotNo):
+
+def addSubplot(gridRows, gridCols, plotNo):
     """
     Add a Subplot. Configure Layout via the global variables
     """
-    pl.subplot(plot_row, plot_col, plotNo)
-
+    pl.subplot(gridRows, gridCols, plotNo)
 
 
 def plotgraph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=False, color='blue'):
@@ -150,13 +180,11 @@ def plotgraph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=F
     """
     if xScaleLog and yScaleLog :
         pl.loglog( x, y)
-    
     elif xScaleLog :
         pl.semilogx( x, y)
     
     elif yScaleLog :
-        pl.semilogy( x, y)
-    
+        pl.semilogy( x, y)    
     else:
         pl.plot(x, y, color=color)
     
@@ -165,38 +193,36 @@ def plotgraph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=F
     pl.title(title)
     
 
-
 def showPlot():
+    """
+    Shows Plot
+    """
     pl.show()
 
-
-
-# Configure Rows and Columns is Subplot is used
-plot_col = 1
-plot_row = 3
 
 if __name__ == '__main__':   
 
     dataFile = 'Simon_Lead_1.dat'
     sampleFreq = 100 # Samplefrequency in Hz
 
+    # Plot Grid Layout
+    col = 1   # Number of Columns
+    row = 3   # Number of Rows
+
     # Read Signal
     sig = readDatafile( dataFile )
     t, val = sig[0], sig[1]
+    ab = absoluteValuesOf( val )
+    rms = rmsSmoothingOf( val )
 
     # Plot Signal
-    addSubplot(1) 
+    addSubplot(row, col, 1) 
     plotgraph(t,val, xlabel='Time in s', ylabel = 'Magnitude', title='Dataset "' + dataFile + '"')
 
-    # Plot Frequency Spectrum
-    addSubplot(2)
-    f,m = freqDomainOf( val, sampleFreq)
-    plotgraph(f,m, 'Frequency in Hz', 'Magnitude', 'Frequency Spectrum of Dataset "' + dataFile + '"')
-
-    # Plot Autocorrelation
-    addSubplot(3)
-    lag,corr = autoCorrelationOf( val )
-    plotgraph( lag, corr, xlabel='Lags', ylabel='Correlation', title='Autocorrelation of "' + dataFile + '"' )
+    # Plot Absolute Values and rmsSmoothing
+    addSubplot(row, col, 2)
+    plotgraph(t,ab, 'Time in s', 'Magnitude', 'Absolute Values and rmsSmoothing "' + dataFile + '"')
+    plotgraph(t,rms, 'Time in s', 'Magnitude', 'Absolute Values and rmsSmoothing "' + dataFile + '"', color='black')
 
     # Show final Plot
     showPlot()
