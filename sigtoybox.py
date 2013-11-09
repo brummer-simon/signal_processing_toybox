@@ -31,22 +31,40 @@ def readDatafile( path, seperator='\t' ):
                 if values[i] != '':
                     data[i].append(float(values[i])) # Try to add values to corresponding dimention
             except IndexError:
-                data.append( [] )             # Add Dimension if append breaks
+                data.append( [] )                    # Add Dimension if append breaks
                 data[i].append( float(values[i]) )   # Append the Value again 
 
     dataFile.close()
 
     return data
 
-# Todo
-def cutOutSamples( dataSet, fromValue, toValue, normalize=False ):
+
+def cutOutSamples( dataSet, fromValue, toValue ):
     """
        Cut out Values of a given dataset beginning from "fromValue" to "toValue". 
        This function assumes that the first dimension of the dataset is orderd ascending and 
        reflects the x-Axis values.
     """
-    return None;
+    newData = []
+    for data in dataSet:
+        newData.append( [] )
+
+    for tup in zip(*dataSet):
+        if fromValue <= tup[0] and tup[0] <= toValue:
+            for i, val in enumerate( tup ):
+                newData[i].append( val )
     
+    return newData
+    
+
+def drawLine( values, a, c):
+    """
+    Calculate values which draws a straight line.
+    """
+    line=[]
+    for val in values:
+        line.append( a * val + c)
+    return line
 
 
 def freqDomainOf(signal, sampleFreq, singleSided=True):
@@ -120,21 +138,6 @@ def standardDeviationOf( values, sample=False ):
     return sqrt( varianceOf( values, sample ) )
 
 
-# Todo
-def plotHistogramOf(values, nBins=100 ):
-    """
-    Calculates histogram for nBins bins( Default 100).
-    """
-    return None	
-
-#Todo
-def psdFunction():
-    """
-    Add DocString faule sau!
-    """
-    return None
-
-
 def autoCorrelationOf(values, lags=100):
     """
     Calculate auto correlation a given List of values
@@ -157,13 +160,10 @@ def rmsSmoothingOf( values, samples=100 ):
     """
     rms = []
     rng = int(samples/2)  # Sample used for Smoothing
-    
-    for i,x in enumerate( values ):
-        
+    for i,x in enumerate( values ):        
         lo = i-rng if i-rng > 0 else 0
         hi = i+rng
         rms.append( rootMeanSquareValueOf( values[ lo : hi] ))
-    
     return rms
 
 
@@ -199,30 +199,3 @@ def showPlot():
     """
     pl.show()
 
-
-if __name__ == '__main__':   
-
-    dataFile = 'Simon_Lead_1.dat'
-    sampleFreq = 100 # Samplefrequency in Hz
-
-    # Plot Grid Layout
-    col = 1   # Number of Columns
-    row = 3   # Number of Rows
-
-    # Read Signal
-    sig = readDatafile( dataFile )
-    t, val = sig[0], sig[1]
-    ab = absoluteValuesOf( val )
-    rms = rmsSmoothingOf( val )
-
-    # Plot Signal
-    addSubplot(row, col, 1) 
-    plotgraph(t,val, xlabel='Time in s', ylabel = 'Magnitude', title='Dataset "' + dataFile + '"')
-
-    # Plot Absolute Values and rmsSmoothing
-    addSubplot(row, col, 2)
-    plotgraph(t,ab, 'Time in s', 'Magnitude', 'Absolute Values and rmsSmoothing "' + dataFile + '"')
-    plotgraph(t,rms, 'Time in s', 'Magnitude', 'Absolute Values and rmsSmoothing "' + dataFile + '"', color='black')
-
-    # Show final Plot
-    showPlot()
