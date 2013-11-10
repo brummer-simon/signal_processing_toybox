@@ -9,7 +9,7 @@ import pylab as pl
 import numpy as np
 import math  as ma
 
-def readDatafile( path, seperator='\t' ):
+def read_datafile( path, seperator='\t' ):
     """ 
     Read n-dimensional Datafile. readDatafile() 
     expects the following filestructure:
@@ -38,8 +38,7 @@ def readDatafile( path, seperator='\t' ):
 
     return data
 
-
-def cutOutSamples( dataSet, fromValue, toValue ):
+def cut_samples_out( dataSet, fromValue, toValue ):
     """
        Cut out Values of a given dataset beginning from "fromValue" to "toValue". 
        This function assumes that the first dimension of the dataset is orderd ascending and 
@@ -56,8 +55,7 @@ def cutOutSamples( dataSet, fromValue, toValue ):
     
     return newData
     
-
-def drawLine( values, a, c):
+def calc_line( values, a, c):
     """
     Calculate values which draws a straight line.
     """
@@ -66,12 +64,11 @@ def drawLine( values, a, c):
         line.append( a * val + c)
     return line
 
-
-def freqDomainOf(signal, sampleFreq, singleSided=True):
+def frequency_domain(values, sampleFreq, singleSided=True):
     """
     Transformation from Time to Frequency Domain. Plotready ;)
     """
-    sig = np.float_( signal )  # Convert Value Array to numpy type
+    sig = np.float_( values )  # Convert Value Array to numpy type
 
     n = len(sig)               # Number of Samples
     k = sp.arange(n)           # List with Series from [0 : n-1]
@@ -86,8 +83,7 @@ def freqDomainOf(signal, sampleFreq, singleSided=True):
     
     return freq , abs(y)                    # Return freq, abs(y) plotready !
 
-
-def absoluteValuesOf( values ):
+def absolute_values( values ):
     """
     Calculates Absolute Values of a given List
     """
@@ -97,64 +93,53 @@ def absoluteValuesOf( values ):
 
     return absVal
 
-
-def meanValueOf( values ):
+def mean_value( values ):
     """
     Calculation of Mean Value of a list of values
     """
     return sum( values ) / len( values )
 
-
-
-def meanSquareValueOf( values ):
+def mean_square_value( values ):
     """
     Calculation of Mean Square Value of a list of values
     """
     return sum( [ i**2 for i in values] ) / len( values )
 
-
-
-def rootMeanSquareValueOf( values ):
+def root_mean_square_value( values ):
     """
     Calculation of Root Mean Square Value of a list of values
     """
-    return ma.sqrt(meanSquareValueOf( values ))
+    return ma.sqrt(mean_square_value( values ))
 
-
-
-def varianceOf( values, sample=False ):
+def variance( values, sample=False ):
     """
     Calculation of the variance of a list of values
     """
-    mean_val = meanValueOf( values )
+    mean_val = mean_value( values )
     n_val = len( values ) -1 if sample else len( values )
     return sum( [ j**2 for j in [ i - mean_val for i in values ] ] ) / n_val
 
-
-def standardDeviationOf( values, sample=False ):
+def standard_deviation( values, sample=False ):
     """
     Calculation of the Standard Deviation of a list of values
     """
-    return sqrt( varianceOf( values, sample ) )
+    return ma.sqrt( variance( values, sample ) )
 
-
-def autoCorrelationOf(values, lags=100):
+def auto_correlation(values, lags=100):
     """
     Calculate auto correlation a given List of values
     """
     lags, corr, line, x = pl.acorr( values, maxlags=lags, usevlines=False, marker=None)
     return lags, corr
 
-
-def crossCorrelationOf(values1, values2, lags=100):
+def cross_correlation(values1, values2, lags=100):
     """
     Caluculate cross correlation of a given list of values
     """
     lags, corr, line, x = pl.xcorr( values1, values2, maxlags=lags, usevlines=False, marker=None)
     return lags, corr
 
-
-def rmsSmoothingOf( values, samples=100 ):
+def rms_smoothing( values, samples=100 ):
     """
     Simple Root Mean Square Smoothing. Returns smoothed curve as a list.
     """
@@ -166,15 +151,13 @@ def rmsSmoothingOf( values, samples=100 ):
         rms.append( rootMeanSquareValueOf( values[ lo : hi] ))
     return rms
 
-
-def addSubplot(gridRows, gridCols, plotNo):
+def add_subplot(gridRows, gridCols, plotNo):
     """
     Add a Subplot. Configure Layout via the global variables
     """
     pl.subplot(gridRows, gridCols, plotNo)
 
-
-def plotgraph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=False, color='blue'):
+def plot_graph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=False, color='blue'):
     """
     Adds a Plot to the final figure. 
     """
@@ -192,8 +175,7 @@ def plotgraph(x, y, xlabel='', ylabel='', title='', xScaleLog=False, yScaleLog=F
     pl.ylabel(ylabel)
     pl.title(title)
     
-
-def showPlot():
+def show_plot():
     """
     Shows Plot
     """
