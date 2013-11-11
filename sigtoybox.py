@@ -8,6 +8,7 @@ import scipy as sp
 import pylab as pl
 import numpy as np
 import math  as ma
+from sp.signal import butter, lfilter
 
 def read_datafile( path, seperator='\t' ):
     """ 
@@ -138,6 +139,16 @@ def cross_correlation(values1, values2, lags=100):
     """
     lags, corr, line, x = pl.xcorr( values1, values2, maxlags=lags, usevlines=False, marker=None)
     return lags, corr
+
+def butterworth_bandpass_filter( values, lowFreq, highFreq, sampleFreq, order=5):
+    """
+    Calculated Values after application of a butterworth bandpass filter
+    """
+    nyq = 0.5 * sampleFreq
+    low = lowFreq / nyq
+    high = highFreq /nyq
+    b,a = butter( order, [low,high], btype='band' )
+    return y = lfilter(b, a, data)
 
 def rms_smoothing( values, samples=100 ):
     """
